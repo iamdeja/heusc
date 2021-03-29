@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
-import Command from "./base/Command.js";
-import User from "../models/user.js";
-import { createUser, getGuildUser } from "./helpers/guildFunctions.js";
+import Command from "./base/Command";
+import User from "../models/user";
+import { createUser, getGuildUser } from "./helpers/guildFunctions";
 
 export default class Balance extends Command {
   constructor() {

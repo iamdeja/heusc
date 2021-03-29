@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import { Client, Collection } from "discord.js";
 import mongoose from "mongoose";
 import { readdirSync } from "fs";
-import User from "./models/user.js";
-import { addGuildXp, createUser } from "./commands/helpers/guildFunctions.js";
+import User from "./models/user";
+import { addGuildXp, createUser } from "./commands/helpers/guildFunctions";
 
 dotenv.config();
 const mongoDB = process.env.DBURL;
