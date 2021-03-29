@@ -50,6 +50,9 @@ const formatForMongoQuery = (rawObject) => {
       case "bio":
         options.bio = value;
         break;
+      case "image":
+      case "pic":
+        options.pictureURL = value;
     }
   }
 
@@ -104,6 +107,7 @@ const createPCEmbed = (user, pc) =>
     .setColor(user.displayColor)
     .setTitle(pc.name ?? "-")
     .setDescription(pc.bio ?? "-")
+    .setThumbnail(pc.pictureURL)
     .addField("Race", pc.race ?? "-")
     .addField("Class", pc.class ?? "-");
 
