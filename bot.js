@@ -76,16 +76,16 @@ bot.once("ready", () => {
 const prefix = "!";
 bot.commands = new Collection();
 
-//const guilds = new Map();
+// const guilds = new Map();
 
 const xpCooldowns = new Collection();
 
 bot.on("message", async (message) => {
   if (message.author.bot) return;
 
-  /*if (!guilds.has(message.guild.id)) {
-        guilds.set(message.guild.id, new Collection());
-    }*/
+  // if (!guilds.has(message.guild.id)) {
+  //   guilds.set(message.guild.id, new Collection());
+  // }
 
   const now = Date.now();
   if (!xpCooldowns.has(message.author.id)) {
@@ -116,9 +116,9 @@ bot.on("message", async (message) => {
   }
 });
 
-//bot.on("guildCreate", async guild => {
-//    console.log("New server");
-//    guild.members.fetch().then(console.log).catch(console.error);
-//});
+// bot.on("guildCreate", async (guild) => {
+//   console.log("New server");
+//   guild.members.fetch().then(console.log).catch(console.error);
+// });
 
 bot.login(process.env.TOKEN).catch(console.error);

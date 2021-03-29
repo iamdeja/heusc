@@ -1,7 +1,7 @@
+import { MessageEmbed } from "discord.js";
 import Command from "./base/Command.js";
 import User from "../models/user.js";
 import { createUser, getGuildUser } from "./helpers/guildFunctions.js";
-import { MessageEmbed } from "discord.js";
 
 export default class Xp extends Command {
   constructor() {
@@ -11,7 +11,7 @@ export default class Xp extends Command {
     });
   }
 
-  async execute(message, args) {
+  async execute(message) {
     let user = await User.findById(message.author.id);
     if (!user) user = await createUser(message.author, message.guild);
 

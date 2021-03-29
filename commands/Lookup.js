@@ -1,7 +1,7 @@
+import { MessageEmbed } from "discord.js";
 import Command from "./base/Command.js";
 import User from "../models/memberLookup.js";
 import { getUserFromLink } from "./helpers/guildFunctions.js";
-import { MessageEmbed } from "discord.js";
 
 export default class Lookup extends Command {
   constructor() {
@@ -16,7 +16,7 @@ export default class Lookup extends Command {
       case "set":
         if (!args[1] || !args[2]) {
           return message.channel.send(
-            "Wrong arguments! Usage: " + "`set id discord_id`."
+            "Wrong arguments! Usage: `set id discord_id`."
           );
         }
         try {
@@ -58,10 +58,10 @@ export default class Lookup extends Command {
         roles.pop();
         const embed = new MessageEmbed()
           .setAuthor(user.user.tag, user.user.displayAvatarURL())
-          //.setImage(user.user.displayAvatarURL())
+          // .setImage(user.user.displayAvatarURL())
           .setColor(user.displayColor)
           .setTitle(user.displayName)
-          .setDescription("Roles: " + roles.join(", "));
+          .setDescription(`Roles: ${  roles.join(", ")}`);
         return message.channel.send(embed);
         break;
       default:

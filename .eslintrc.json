@@ -1,13 +1,21 @@
 {
-  "extends": "eslint:recommended",
+  "extends": ["airbnb-base", "prettier"],
   "env": {
     "node": true,
-    "es6": true
+    "es2021": true
   },
   "parserOptions": {
-    "ecmaVersion": 2021
+    "ecmaVersion": 2021,
+    "sourceType": "module"
   },
   "rules": {
-
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "no-console": "off",
+    "no-restricted-syntax": [
+      "error",
+      "ForInStatement",
+      "LabeledStatement",
+      "WithStatement"
+    ]
   }
 }

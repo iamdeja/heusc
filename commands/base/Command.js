@@ -4,7 +4,7 @@ export default class Command {
 
   constructor(options) {
     if (!options.name || !options.description) {
-      throw new Error("One of the configuration options is missing.");
+      throw new Error("Configuration options are incomplete.");
     }
 
     this.#name = options.name;
@@ -20,6 +20,6 @@ export default class Command {
   }
 
   execute(message, args) {
-    throw new Error(`Run function not overwritten in ${this.constructor.name}`);
+    throw new Error(`Missing execution in ${this.constructor.name}!`);
   }
 }

@@ -5,17 +5,20 @@
   "type": "module",
   "scripts": {
     "start": "node --experimental-json-modules bot.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "Dé-Jà-Vu",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "mongoose": "^5.11.16"
   },
   "devDependencies": {
-    "eslint": "^7.20.0"
+    "eslint": "^7.23.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-import": "^2.22.1"
   }
 }
