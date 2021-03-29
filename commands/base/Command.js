@@ -1,5 +1,6 @@
 export default class Command {
   #name;
+
   #description;
 
   constructor(options) {
@@ -19,7 +20,7 @@ export default class Command {
     return this.#description;
   }
 
-  execute(message, args) {
+  execute() {
     throw new Error(`Missing execution in ${this.constructor.name}!`);
   }
 }

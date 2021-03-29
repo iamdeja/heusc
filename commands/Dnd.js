@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
-import Command from "./base/Command.js";
-import Pc from "../models/dndPc.js";
-import { getUserFromLink } from "./helpers/guildFunctions.js";
+import Command from "./base/Command";
+import Pc from "../models/dndPc";
+import { getUserFromLink } from "./helpers/guildFunctions";
 
 // Suffix to handle multiple PCs for future campaigns.
 const suffix = "_1";

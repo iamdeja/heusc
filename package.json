@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "node --experimental-json-modules bot.js",
+    "start": "node --experimental-json-modules --experimental-specifier-resolution=node bot.js",
     "lint": "eslint ."
   },
   "keywords": [],
@@ -16,6 +16,9 @@
     "mongoose": "^5.11.16"
   },
   "devDependencies": {
+    "@babel/core": "^7.13.14",
+    "@babel/eslint-parser": "^7.13.14",
+    "@babel/preset-env": "^7.13.12",
     "eslint": "^7.23.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.1.0",
