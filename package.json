@@ -1,0 +1,21 @@
+{
+  "name": "heusc-bot",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-json-modules bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Dé-Jà-Vu",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.11.16"
+  },
+  "devDependencies": {
+    "eslint": "^7.20.0"
+  }
+}
