@@ -57,28 +57,37 @@ const formatForMongoQuery = (rawObject) => {
 };
 
 const handlePCUpdate = async (message, args) => {
-  const pcArgs = args.slice(2);
+  if (args[2] !== "set")
+    return message.channel.send(fixedResponses.pcCallError);
+
+  const playerId = args[1];
+  let userId = await getUserFromLink(playerId.toLowerCase());
+  if (!userId) return message.channel.send("No user with this id found.");
+  userId += suffix;
+
+  const pcArgs = args.slice(3);
 
   const inputOptions = {};
   let error = false;
-  for (let i = 0; i < pcArgs.length; i += 2) {
+  for (let i = 0; i < pcArgs.length; ++i) {
     const arg = pcArgs[i];
+
     if (arg[0] !== "-" && arg[1] !== "-") {
       error = true;
       break;
     }
-    inputOptions[arg.slice(2)] = pcArgs[i + 1].replace(/_/g, " ");
+
+    const values = [];
+
+    while (pcArgs[i + 1] && pcArgs[i + 1][0] !== "-") {
+      i += 1;
+      values.push(pcArgs[i]);
+    }
+
+    inputOptions[arg.slice(2)] = values.join(" ");
   }
 
   if (error) return message.channel.send(fixedResponses.pcArgumentParseError);
-
-  let userId;
-  if (Object.prototype.hasOwnProperty.call(inputOptions, "id")) {
-    userId = await getUserFromLink(inputOptions.id.toLowerCase());
-    if (!userId) return message.channel.send("No user with this id found.");
-  } else return message.channel.send("You must specify a user id.");
-
-  userId += suffix;
 
   const mongoOptions = formatForMongoQuery(inputOptions);
   const updateResult = await updatePc(userId, mongoOptions);
@@ -129,7 +138,7 @@ export default class Dnd extends Command {
     switch (args[0]) {
       case "pc":
       case "PC":
-        if (args[1] === "set") return handlePCUpdate(message, args);
+        if (args[2]) return handlePCUpdate(message, args);
         if (args[1]) return handlePCFetch(message, args);
         return message.channel.send(fixedResponses.pcCallError);
       default:

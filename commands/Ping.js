@@ -1,4 +1,4 @@
-import Command from "./base/Command.js";
+import Command from "./base/Command";
 
 export default class Ping extends Command {
   constructor() {

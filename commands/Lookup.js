@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
-import Command from "./base/Command.js";
-import User from "../models/memberLookup.js";
-import { getUserFromLink } from "./helpers/guildFunctions.js";
+import Command from "./base/Command";
+import User from "../models/memberLookup";
+import { getUserFromLink } from "./helpers/guildFunctions";
 
 export default class Lookup extends Command {
   constructor() {
