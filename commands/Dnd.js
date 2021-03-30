@@ -1,8 +1,10 @@
-import { MessageEmbed } from "discord.js";
 import Command from "./base/Command";
 import PC from "../models/dndPc";
 import Location from "../models/dndLocation";
 import { getUserFromLink } from "./helpers/guildFunctions";
+import { createLocationEmbed, createPCEmbed } from "./helpers/embeds";
+import { updateLocation, updatePC } from "./helpers/updateQueries";
+import {formatPCUpdateQuery} from "./helpers/formatQueries";
 
 // Suffix to handle multiple PCs for future campaigns.
 const suffix = "_1";
@@ -18,57 +20,19 @@ const help =
   "Options:\n" +
   "  pc: --name, --race, --class, --bio, [--image | --pic]\n" +
   "\n" +
-  "All options must be followed by a value, else the respective fields are cleared.\n" +
+  "All options must be followed by a value, " +
+  "else the respective fields are cleared.\n" +
   "```";
 
 const fixedResponses = {
   pcCallError: `Wrong command usage.\n${help}`,
   locCallError: `Wrong command usage.\n${help}`,
   pcArgumentParseError: "Could not parse arguments. Please check your syntax.",
-  pcUpdateSuccess: "PC successfully updated. View using `dnd pc <nickname>`.",
+  pcUpdateSuccess:
+    "PC successfully updated. View using `dnd pc <player_name>`.",
   pcUpdateFailure: "Something went wrong. The PC could not be updated.",
   locUpdateSuccess: "Location successfully updated.",
   locUpdateFailure: "Something went wrong. The location could not be updated.",
-};
-
-const updatePC = async (id, options) => {
-  try {
-    await PC.findByIdAndUpdate(id, { $set: options }, { upsert: true }).exec();
-    return true;
-  } catch (e) {
-    console.error(e);
-    return false;
-  }
-};
-
-const formatForMongoQuery = (rawObject) => {
-  const options = {};
-
-  for (const [option, argument] of Object.entries(rawObject)) {
-    const value = argument.charAt(0).toUpperCase() + argument.slice(1);
-
-    // Invalid options are simply dropped.
-    // eslint-disable-next-line default-case
-    switch (option) {
-      case "name":
-        options.name = value;
-        break;
-      case "race":
-        options.race = value;
-        break;
-      case "class":
-        options.class = value;
-        break;
-      case "bio":
-        options.bio = value;
-        break;
-      case "image":
-      case "pic":
-        options.pictureURL = value;
-    }
-  }
-
-  return options;
 };
 
 const handlePCUpdate = async (message, args) => {
@@ -104,27 +68,13 @@ const handlePCUpdate = async (message, args) => {
 
   if (error) return message.channel.send(fixedResponses.pcArgumentParseError);
 
-  const mongoOptions = formatForMongoQuery(inputOptions);
+  const mongoOptions = formatPCUpdateQuery(inputOptions);
   const updateResult = await updatePC(userId, mongoOptions);
   return message.channel.send(
     updateResult
       ? fixedResponses.pcUpdateSuccess
       : fixedResponses.pcUpdateFailure
   );
-};
-
-const updateLocation = async (name, description) => {
-  try {
-    await Location.findByIdAndUpdate(
-      name.toLowerCase(),
-      { $set: { name, description } },
-      { upsert: true }
-    ).exec();
-    return true;
-  } catch (e) {
-    console.error(e);
-    return false;
-  }
 };
 
 const handleLocationUpdate = async (message, args) => {
@@ -145,16 +95,6 @@ const handleLocationUpdate = async (message, args) => {
   );
 };
 
-const createPCEmbed = (user, pc) =>
-  new MessageEmbed()
-    .setAuthor(user.user.tag, user.user.displayAvatarURL())
-    .setColor(user.displayColor)
-    .setThumbnail(pc.pictureURL)
-    .setTitle(pc.name ?? "-")
-    .setDescription(pc.bio ?? "-")
-    .addField("Race", pc.race ?? "-")
-    .addField("Class", pc.class ?? "-");
-
 const handlePCFetch = async (message, args) => {
   const userId = await getUserFromLink(args[1]);
   if (!userId) return message.channel.send("No user with this id found.");
@@ -172,11 +112,6 @@ const handlePCFetch = async (message, args) => {
   if (!pc) return message.channel.send("No player character for this user.");
   return message.channel.send(createPCEmbed(user, pc));
 };
-
-const createLocationEmbed = (location) =>
-  new MessageEmbed()
-    .setTitle(location.name)
-    .setDescription(location.description ?? "-");
 
 const handleLocationFetch = async (message, args) => {
   const location = await Location.findById(args[1].toLowerCase());
