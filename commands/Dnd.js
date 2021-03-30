@@ -13,64 +13,76 @@ import { parseArguments } from "./helpers/io";
 // Suffix to handle multiple PCs for future campaigns.
 const suffix = "_1";
 
-const help =
-  "```\n" +
-  "Dungeons and Dragons.\n" +
-  "\n" +
-  "Usage:\n" +
-  "  dnd pc <player_name> [set] [pc_options]\n" +
-  "  dnd loc <location_name> [set] [loc_options]\n" +
-  "  dnd loc list\n" +
-  "\n" +
-  "Options:\n" +
-  "  pc: --name, --race, --class, --bio, [--image | --pic]\n" +
-  "  loc: --name, --desc\n" +
-  "\n" +
-  "All options must be followed by a value, " +
-  "else the respective fields are cleared.\n" +
-  "```";
+const info =
+  "A tool to get Dungeons & Dragons player and location information.\n" +
+  "Submodules: `pc`, `loc`\n\n" +
+  "Call `dnd <submodule> help` for more details.";
 
-const fixedResponses = {
-  pcCallError: `Wrong command usage.\n${help}`,
-  locCallError: `Wrong command usage.\n${help}`,
-  pcArgumentParseError: "Could not parse arguments. Please check your syntax.",
-  pcUpdateSuccess:
-    "PC successfully updated. View using `dnd pc <player_name>`.",
-  pcUpdateFailure: "Something went wrong. The PC could not be updated.",
-  locUpdateSuccess: "Location successfully updated.",
-  locUpdateFailure: "Something went wrong. The location could not be updated.",
+const cmdCallError = "Wrong command usage. Call `dnd help` for help.";
+const cmdParseError = "Could not parse arguments. Please check your syntax.";
+
+const pcHelp = "Use `dnd pc help` for more information.";
+const pcOptions = "--name, --race, --class, --bio, --image | --pic";
+const pcResponses = {
+  generalHelp:
+    "```\n" +
+    "Usage: dnd pc <player_id>                fetch PC information\n" +
+    "   or: dnd pc <player_id> set [options]  update PC information\n" +
+    "\n" +
+    `Options: ${pcOptions}\n\n` +
+    "Options not followed by values are reset.\n" +
+    "```",
+  updateSyntaxError: `The correct usage is \`dnd pc <player_id> set [options]\`. ${pcHelp}`,
+  updateSuccess: "PC successfully updated.",
+  updateFailure: "PC could not be updated.",
+};
+
+const locHelp = "Use `dnd loc help` for more information.";
+const locOptions = "--name, --desc";
+const locResponses = {
+  generalHelp:
+    "```\n" +
+    "Usage: dnd loc <loc_id>                fetch information about a location\n" +
+    "   or: dnd loc <loc_id> set [options]  update information for a location\n" +
+    "   or: dnd loc list                    fetch a list of locations and IDs\n" +
+    "\n" +
+    `Options: ${locOptions}\n\n` +
+    "Options not followed by values are reset. " +
+    "Location IDs may not contain spaces.\n" +
+    "```",
+  updateSyntaxError:
+    `The correct usage is \`dnd loc <location_id> set [options]\`. ${locHelp}\n` +
+    "Do you have a space in the location ID?",
+  updateSuccess: "Location successfully updated.",
+  updateFailure: "Location could not be updated.",
 };
 
 const handlePCUpdate = async (message, args) => {
   if (args[2] !== "set")
-    return message.channel.send(fixedResponses.pcCallError);
+    return message.channel.send(pcResponses.updateSyntaxError);
 
-  const playerId = args[1];
-  let userId = await getUserFromLink(playerId.toLowerCase());
+  const playerId = args[1].toLowerCase();
+  let userId = await getUserFromLink(playerId);
   if (!userId) return message.channel.send("No user with this id found.");
   userId += suffix;
 
   const parameters = parseArguments(args.slice(3));
-  if (!parameters)
-    return message.channel.send(fixedResponses.pcArgumentParseError);
+  if (!parameters) return message.channel.send(cmdParseError);
 
   const mongoOptions = formatUpdatePCQuery(parameters);
   const updateResult = await updatePC(userId, mongoOptions);
   return message.channel.send(
-    updateResult
-      ? fixedResponses.pcUpdateSuccess
-      : fixedResponses.pcUpdateFailure
+    updateResult ? pcResponses.updateSuccess : pcResponses.updateFailure
   );
 };
 
 const handleLocationUpdate = async (message, args) => {
   if (args[2] !== "set")
-    return message.channel.send(fixedResponses.locCallError);
+    return message.channel.send(locResponses.updateSyntaxError);
 
   const locationId = args[1].toLowerCase();
   const parameters = parseArguments(args.slice(3));
-  if (!parameters)
-    return message.channel.send(fixedResponses.pcArgumentParseError);
+  if (!parameters) return message.channel.send(cmdParseError);
 
   // A location's name is required!
   if (!("name" in parameters)) parameters.name = locationId;
@@ -78,9 +90,7 @@ const handleLocationUpdate = async (message, args) => {
   const mongoOptions = formatUpdateLocationQuery(parameters);
   const updateResult = updateLocation(locationId, mongoOptions);
   return message.channel.send(
-    updateResult
-      ? fixedResponses.locUpdateSuccess
-      : fixedResponses.locUpdateFailure
+    updateResult ? locResponses.updateSuccess : locResponses.updateFailure
   );
 };
 
@@ -136,20 +146,27 @@ export default class Dnd extends Command {
     switch (subcommand) {
       case "pc":
         if (args[2]) return handlePCUpdate(message, args);
-        if (args[1]) return handlePCFetch(message, args);
-        return message.channel.send(fixedResponses.pcCallError);
+        if (args[1]) {
+          if (args[1] === "help")
+            return message.channel.send(pcResponses.generalHelp);
+          return handlePCFetch(message, args);
+        }
+        return message.channel.send(cmdCallError);
       case "loc":
         if (args[2]) return handleLocationUpdate(message, args);
         if (args[1]) {
           if (args[1] === "list") return handleAllLocationsFetch(message);
+          if (args[1] === "help")
+            return message.channel.send(locResponses.generalHelp);
           return handleLocationFetch(message, args);
         }
-        return message.channel.send(fixedResponses.locCallError);
+        return message.channel.send(cmdCallError);
+      case "info":
       case "help":
-        return message.channel.send(help);
+        return message.channel.send(info);
       default:
         return message.channel.send(
-          "Ambiguous usage. Use `dnd help` to get help."
+          "Ambiguous usage. See `dnd help` for proper syntax."
         );
     }
   }
