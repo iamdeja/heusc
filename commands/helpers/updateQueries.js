@@ -11,11 +11,11 @@ export const updatePC = async (id, options) => {
   }
 };
 
-export const updateLocation = async (name, description) => {
+export const updateLocation = async (id, options) => {
   try {
     await Location.findByIdAndUpdate(
-      name.toLowerCase(),
-      { $set: { name, description } },
+      id,
+      { $set: options },
       { upsert: true }
     ).exec();
     return true;

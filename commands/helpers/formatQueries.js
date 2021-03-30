@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/prefer-default-export
-export const formatPCUpdateQuery = (rawObject) => {
+export const formatUpdatePCQuery = (rawObject) => {
   const options = {};
 
   for (const [option, argument] of Object.entries(rawObject)) {
@@ -23,6 +22,26 @@ export const formatPCUpdateQuery = (rawObject) => {
       case "image":
       case "pic":
         options.pictureURL = value;
+    }
+  }
+
+  return options;
+};
+
+export const formatUpdateLocationQuery = (rawObject) => {
+  const options = {};
+
+  for (const [option, argument] of Object.entries(rawObject)) {
+    const value = argument.charAt(0).toUpperCase() + argument.slice(1);
+
+    // eslint-disable-next-line default-case
+    switch (option) {
+      case "name":
+        options.name = value;
+        break;
+      case "desc":
+        options.description = value;
+        break;
     }
   }
 
