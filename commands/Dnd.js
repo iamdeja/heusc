@@ -1,6 +1,7 @@
 import { MessageEmbed } from "discord.js";
 import Command from "./base/Command";
 import PC from "../models/dndPc";
+import Location from "../models/dndLocation";
 import { getUserFromLink } from "./helpers/guildFunctions";
 
 // Suffix to handle multiple PCs for future campaigns.

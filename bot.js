@@ -2,11 +2,12 @@ import dotenv from "dotenv";
 import { Client, Collection } from "discord.js";
 import mongoose from "mongoose";
 import { readdirSync } from "fs";
-import User from "./models/user";
-import { addGuildXp, createUser } from "./commands/helpers/guildFunctions";
+
+// XP MODULES ARE ON AN IMPLEMENTATION BREAK.
+// import User from "./models/user";
+// import { addGuildXp, createUser } from "./commands/helpers/guildFunctions";
 
 dotenv.config();
-const mongoDB = process.env.DBURL;
 
 // Fancy art.
 console.log(" __  __     ______     __  __     ______     ______");
@@ -21,28 +22,38 @@ console.log(
 );
 console.log("  \\/_/\\/_/   \\/_____/   \\/_____/   \\/_____/   \\/_____/");
 console.log("                                        version: alpha");
-
 console.log();
 
-// Database stuff.
-console.log("Establishing connection to database. . .");
-mongoose
-  .connect(mongoDB, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    autoIndex: false,
-  })
-  .catch(console.error);
+// MongoDB
+
+const mongoDB = process.env.DBURL;
+
+(async () => {
+  console.log("Establishing connection to MongoDB...");
+  try {
+    await mongoose.connect(mongoDB, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      autoIndex: false,
+    });
+  } catch (e) {
+    console.error();
+    process.exit(1);
+  }
+  console.log("Successfully connected to MongoDB.");
+})();
 
 const db = mongoose.connection;
+console.log("Establishing connection to database...");
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 db.once("open", () => console.log("Database connection successful."));
 
-// Discord stuff.
+// Discord
+
 const bot = new Client();
 
+console.log("Starting bot...");
 bot.once("ready", () => {
-  console.log("Starting bot. . .");
   console.log("Ready!");
 
   const presenceFn = () => {
@@ -61,6 +72,10 @@ bot.once("ready", () => {
   presenceFn();
 });
 
+// Commands
+
+// This command fetching implementation is subject to change.
+// I am not happy with it, however, I don't yet have a better idea.
 (async () => {
   const commandFiles = readdirSync("./commands/").filter((file) =>
     file.endsWith(".js")
@@ -77,11 +92,13 @@ const prefix = "!";
 bot.commands = new Collection();
 
 // const guilds = new Map();
+// const xpCooldowns = new Collection();
 
-const xpCooldowns = new Collection();
+// Command Handler
 
 bot.on("message", async (message) => {
   if (message.author.bot) return;
+  if (!message.content.startsWith(prefix)) return;
 
   // if (!guilds.has(message.guild.id)) {
   //   guilds.set(message.guild.id, new Collection());
@@ -92,15 +109,15 @@ bot.on("message", async (message) => {
     xpCooldowns.set(message.author.id, now);
     setTimeout(() => xpCooldowns.delete(message.author.id), 1000 * 60);
 
-    let user = await User.findById(message.author.id);
-    if (!user) user = await createUser(message.author, message.guild);
-
-    console.log("Adding xp");
-    addGuildXp(user, message.guild).catch(console.error);
+    // let user = await User.findById(message.author.id);
+    // if (!user) user = await createUser(message.author, message.guild);
+    // console.log("Adding xp");
+    // addGuildXp(user, message.guild).catch(console.error);
   }
 
-  if (!message.content.startsWith(prefix)) return;
-
+  // This approach of slicing arguments has downsides.
+  // For example, one cannot have spaces in arguments even if they surround
+  // them with quotes. Might rethink this later.
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const cmd = args.shift().toLowerCase();
   if (!cmd) return;
@@ -108,10 +125,13 @@ bot.on("message", async (message) => {
   const command = bot.commands.get(cmd);
   if (!command) return;
 
+  // This is a last resort try-catch block for Discord errors,
+  // such as message channel send permissions.
+  // All implementation errors should be handled within commands.
   try {
     await command.execute(message, args);
-  } catch (error) {
-    console.error(error);
+  } catch (e) {
+    console.error(e);
     await message.reply("there was an error trying to execute that command!");
   }
 });
