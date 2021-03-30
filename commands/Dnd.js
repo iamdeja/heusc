@@ -8,6 +8,7 @@ import {
   formatUpdateLocationQuery,
   formatUpdatePCQuery,
 } from "./helpers/formatQueries";
+import { parseArguments } from "./helpers/io";
 
 // Suffix to handle multiple PCs for future campaigns.
 const suffix = "_1";
@@ -49,31 +50,11 @@ const handlePCUpdate = async (message, args) => {
   if (!userId) return message.channel.send("No user with this id found.");
   userId += suffix;
 
-  const pcArgs = args.slice(3);
+  const parameters = parseArguments(args.slice(3));
+  if (!parameters)
+    return message.channel.send(fixedResponses.pcArgumentParseError);
 
-  const inputOptions = {};
-  let error = false;
-  for (let i = 0; i < pcArgs.length; ++i) {
-    const arg = pcArgs[i];
-
-    if (arg[0] !== "-" && arg[1] !== "-") {
-      error = true;
-      break;
-    }
-
-    const values = [];
-
-    while (pcArgs[i + 1] && pcArgs[i + 1][0] !== "-") {
-      i += 1;
-      values.push(pcArgs[i]);
-    }
-
-    inputOptions[arg.slice(2)] = values.join(" ");
-  }
-
-  if (error) return message.channel.send(fixedResponses.pcArgumentParseError);
-
-  const mongoOptions = formatUpdatePCQuery(inputOptions);
+  const mongoOptions = formatUpdatePCQuery(parameters);
   const updateResult = await updatePC(userId, mongoOptions);
   return message.channel.send(
     updateResult
@@ -87,36 +68,14 @@ const handleLocationUpdate = async (message, args) => {
     return message.channel.send(fixedResponses.locCallError);
 
   const locationId = args[1].toLowerCase();
-  const locationArgs = args.slice(3);
-
-  const inputOptions = {};
-  let error = false;
-  for (let i = 0; i < locationArgs.length; ++i) {
-    const arg = locationArgs[i];
-
-    if (arg[0] !== "-" && arg[1] !== "-") {
-      error = true;
-      break;
-    }
-
-    const values = [];
-
-    while (locationArgs[i + 1] && locationArgs[i + 1][0] !== "-") {
-      i += 1;
-      values.push(locationArgs[i]);
-    }
-
-    inputOptions[arg.slice(2)] = values.join(" ");
-  }
-
-  if (error) return message.channel.send(fixedResponses.pcArgumentParseError);
+  const parameters = parseArguments(args.slice(3));
+  if (!parameters)
+    return message.channel.send(fixedResponses.pcArgumentParseError);
 
   // A location's name is required!
-  if (!("name" in inputOptions)) {
-    inputOptions.name = locationId;
-  }
+  if (!("name" in parameters)) parameters.name = locationId;
 
-  const mongoOptions = formatUpdateLocationQuery(inputOptions);
+  const mongoOptions = formatUpdateLocationQuery(parameters);
   const updateResult = updateLocation(locationId, mongoOptions);
   return message.channel.send(
     updateResult
