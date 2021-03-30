@@ -9,6 +9,7 @@ const dndLocationSchema = new Schema(
     _id: String,
     name: { type: String, required: true },
     description: String,
+    pictureURL: String,
   },
   { collection: "locations" }
 );

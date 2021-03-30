@@ -22,7 +22,7 @@ const cmdCallError = "Wrong command usage. Call `dnd help` for help.";
 const cmdParseError = "Could not parse arguments. Please check your syntax.";
 
 const pcHelp = "Use `dnd pc help` for more information.";
-const pcOptions = "--name, --race, --class, --bio, --image | --pic";
+const pcOptions = "--name, --race, --class, --bio, --img";
 const pcResponses = {
   generalHelp:
     "```\n" +
@@ -38,7 +38,7 @@ const pcResponses = {
 };
 
 const locHelp = "Use `dnd loc help` for more information.";
-const locOptions = "--name, --desc";
+const locOptions = "--name, --desc, --img";
 const locResponses = {
   generalHelp:
     "```\n" +
@@ -85,7 +85,12 @@ const handleLocationUpdate = async (message, args) => {
   if (!parameters) return message.channel.send(cmdParseError);
 
   // A location's name is required!
-  if (!("name" in parameters)) parameters.name = locationId;
+  // If the location is created and no name is assigned,
+  // make one from the ID.
+  const location = await Location.findById(locationId).exec();
+  if (!location) {
+    if (!("name" in parameters)) parameters.name = locationId;
+  }
 
   const mongoOptions = formatUpdateLocationQuery(parameters);
   const updateResult = updateLocation(locationId, mongoOptions);
@@ -107,7 +112,7 @@ const handlePCFetch = async (message, args) => {
     );
   }
 
-  const pc = await PC.findById(userId + suffix);
+  const pc = await PC.findById(userId + suffix).exec();
   if (!pc) return message.channel.send("No player character for this user.");
   return message.channel.send(createPCEmbed(user, pc));
 };
@@ -128,7 +133,7 @@ const handleAllLocationsFetch = async (message) => {
 };
 
 const handleLocationFetch = async (message, args) => {
-  const location = await Location.findById(args[1].toLowerCase());
+  const location = await Location.findById(args[1].toLowerCase()).exec();
   if (!location) return message.channel.send("Location not found.");
   return message.channel.send(createLocationEmbed(location));
 };

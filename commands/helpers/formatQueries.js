@@ -19,8 +19,7 @@ export const formatUpdatePCQuery = (rawObject) => {
       case "bio":
         options.bio = value;
         break;
-      case "image":
-      case "pic":
+      case "img":
         options.pictureURL = value;
     }
   }
@@ -36,8 +35,12 @@ export const formatUpdateLocationQuery = (rawObject) => {
 
     // eslint-disable-next-line default-case
     switch (option) {
+      // The name is mandatory!
       case "name":
-        options.name = value;
+        options.name = value ?? "[placeholder]";
+        break;
+      case "img":
+        options.pictureURL = value;
         break;
       case "desc":
         options.description = value;

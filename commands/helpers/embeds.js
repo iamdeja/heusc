@@ -13,4 +13,5 @@ export const createPCEmbed = (user, pc) =>
 export const createLocationEmbed = (location) =>
   new MessageEmbed()
     .setTitle(location.name)
-    .setDescription(location.description ?? "-");
+    .setDescription(location.description ?? "-")
+    .setImage(location.pictureURL);
