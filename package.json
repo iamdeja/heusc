@@ -7,6 +7,7 @@
     "start": "node --experimental-json-modules --experimental-specifier-resolution=node bot.js",
     "lint": "eslint ."
   },
+  "main": "bot.js",
   "keywords": [
     "discord.js",
     "discord-bot"
