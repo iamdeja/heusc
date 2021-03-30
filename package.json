@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node --experimental-json-modules --experimental-specifier-resolution=node bot.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prettier": "prettier --check ."
   },
   "main": "bot.js",
   "keywords": [
