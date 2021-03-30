@@ -1,6 +1,6 @@
 import { MessageEmbed } from "discord.js";
 import Command from "./base/Command";
-import User from "../models/memberLookup";
+import { Link } from "../models/models";
 import { getUserFromLink } from "./helpers/guildFunctions";
 
 export default class Lookup extends Command {
@@ -20,7 +20,7 @@ export default class Lookup extends Command {
           );
         }
         try {
-          await User.create({
+          await Link.create({
             _id: args[1].toLowerCase(),
             discordId: args[2],
           });
@@ -61,7 +61,7 @@ export default class Lookup extends Command {
           // .setImage(user.user.displayAvatarURL())
           .setColor(user.displayColor)
           .setTitle(user.displayName)
-          .setDescription(`Roles: ${  roles.join(", ")}`);
+          .setDescription(`Roles: ${roles.join(", ")}`);
         return message.channel.send(embed);
         break;
       default:

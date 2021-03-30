@@ -1,5 +1,4 @@
-import User from "../../models/user";
-import Link from "../../models/memberLookup";
+import { User, Link } from "../../models/models";
 
 export const getUserFromLink = async (id) => {
   const link = await Link.findById(id).exec();

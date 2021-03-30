@@ -1,6 +1,5 @@
 import Command from "./base/Command";
-import PC from "../models/dndPc";
-import Location from "../models/dndLocation";
+import { PC, Location } from "../models/models";
 import { getUserFromLink } from "./helpers/guildFunctions";
 import { createLocationEmbed, createPCEmbed } from "./helpers/embeds";
 import { updateLocation, updatePC } from "./helpers/updateQueries";
