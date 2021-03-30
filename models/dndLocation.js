@@ -7,7 +7,7 @@ mongoose.set("useFindAndModify", false);
 const dndLocationSchema = new Schema(
   {
     _id: String,
-    name: String,
+    name: { type: String, required: true },
     description: String,
   },
   { collection: "locations" }

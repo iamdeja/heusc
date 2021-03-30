@@ -23,9 +23,12 @@ const help =
 
 const fixedResponses = {
   pcCallError: `Wrong command usage.\n${help}`,
+  locCallError: `Wrong command usage.\n${help}`,
   pcArgumentParseError: "Could not parse arguments. Please check your syntax.",
   pcUpdateSuccess: "PC successfully updated. View using `dnd pc <nickname>`.",
   pcUpdateFailure: "Something went wrong. The PC could not be updated.",
+  locUpdateSuccess: "Location successfully updated.",
+  locUpdateFailure: "Something went wrong. The location could not be updated.",
 };
 
 const updatePC = async (id, options) => {
@@ -110,6 +113,38 @@ const handlePCUpdate = async (message, args) => {
   );
 };
 
+const updateLocation = async (name, description) => {
+  try {
+    await Location.findByIdAndUpdate(
+      name.toLowerCase(),
+      { $set: { name, description } },
+      { upsert: true }
+    ).exec();
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+};
+
+const handleLocationUpdate = async (message, args) => {
+  if (args[2] !== "set")
+    return message.channel.send(fixedResponses.locCallError);
+
+  const locationName = args[1];
+
+  const locationArgs = args.slice(3);
+  const descriptionWords = [];
+  locationArgs.forEach((argument) => descriptionWords.push(argument));
+
+  const updateResult = updateLocation(locationName, descriptionWords.join(" "));
+  return message.channel.send(
+    updateResult
+      ? fixedResponses.locUpdateSuccess
+      : fixedResponses.locUpdateFailure
+  );
+};
+
 const createPCEmbed = (user, pc) =>
   new MessageEmbed()
     .setAuthor(user.user.tag, user.user.displayAvatarURL())
@@ -135,8 +170,18 @@ const handlePCFetch = async (message, args) => {
 
   const pc = await PC.findById(userId + suffix);
   if (!pc) return message.channel.send("No player character for this user.");
-
   return message.channel.send(createPCEmbed(user, pc));
+};
+
+const createLocationEmbed = (location) =>
+  new MessageEmbed()
+    .setTitle(location.name)
+    .setDescription(location.description ?? "-");
+
+const handleLocationFetch = async (message, args) => {
+  const location = await Location.findById(args[1].toLowerCase());
+  if (!location) return message.channel.send("Location not found.");
+  return message.channel.send(createLocationEmbed(location));
 };
 
 export default class Dnd extends Command {
@@ -155,7 +200,9 @@ export default class Dnd extends Command {
         if (args[1]) return handlePCFetch(message, args);
         return message.channel.send(fixedResponses.pcCallError);
       case "loc":
-        return message.channel.send("Location command not available yet.");
+        if (args[2]) return handleLocationUpdate(message, args);
+        if (args[1]) return handleLocationFetch(message, args);
+        return message.channel.send(fixedResponses.locCallError);
       case "help":
         return message.channel.send(help);
       default:
