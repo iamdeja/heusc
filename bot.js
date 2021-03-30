@@ -25,10 +25,12 @@ console.log("                                        version: alpha");
 console.log();
 
 // MongoDB
+// Might tweak this to be more elegant later on.
+// https://mongoosejs.com/docs/connections.html
 
-const mongoDB = process.env.DBURL;
-
+// Initial connection.
 (async () => {
+  const mongoDB = process.env.DBURL;
   console.log("Establishing connection to MongoDB...");
   try {
     await mongoose.connect(mongoDB, {
@@ -37,24 +39,24 @@ const mongoDB = process.env.DBURL;
       autoIndex: false,
     });
   } catch (e) {
-    console.error();
-    process.exit(1);
+    console.error(e);
+    // process.exit(1);
   }
-  console.log("Successfully connected to MongoDB.");
+  console.log("Established connection to MongoDB.");
 })();
 
-const db = mongoose.connection;
-console.log("Establishing connection to database...");
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", () => console.log("Database connection successful."));
+// Post initial connection errors.
+mongoose.connection.on("error", (e) => {
+  console.error(e);
+  // process.exit(1);
+});
 
 // Discord
-
+console.log("Starting bot...");
 const bot = new Client();
 
-console.log("Starting bot...");
 bot.once("ready", () => {
-  console.log("Ready!");
+  console.log("HEUSC is online!");
 
   const presenceFn = () => {
     bot.user
@@ -104,16 +106,16 @@ bot.on("message", async (message) => {
   //   guilds.set(message.guild.id, new Collection());
   // }
 
-  const now = Date.now();
-  if (!xpCooldowns.has(message.author.id)) {
-    xpCooldowns.set(message.author.id, now);
-    setTimeout(() => xpCooldowns.delete(message.author.id), 1000 * 60);
-
-    // let user = await User.findById(message.author.id);
-    // if (!user) user = await createUser(message.author, message.guild);
-    // console.log("Adding xp");
-    // addGuildXp(user, message.guild).catch(console.error);
-  }
+  // const now = Date.now();
+  // if (!xpCooldowns.has(message.author.id)) {
+  //   xpCooldowns.set(message.author.id, now);
+  //   setTimeout(() => xpCooldowns.delete(message.author.id), 1000 * 60);
+  //
+  //   let user = await User.findById(message.author.id);
+  //   if (!user) user = await createUser(message.author, message.guild);
+  //   console.log("Adding xp");
+  //   addGuildXp(user, message.guild).catch(console.error);
+  // }
 
   // This approach of slicing arguments has downsides.
   // For example, one cannot have spaces in arguments even if they surround

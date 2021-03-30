@@ -1,13 +1,16 @@
 {
   "name": "heusc-bot",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Bot for the Sea of Decay Discord server.",
   "type": "module",
   "scripts": {
     "start": "node --experimental-json-modules --experimental-specifier-resolution=node bot.js",
     "lint": "eslint ."
   },
-  "keywords": [],
+  "keywords": [
+    "discord.js",
+    "discord-bot"
+  ],
   "author": "Dé-Jà-Vu",
   "license": "MIT",
   "repository": {
