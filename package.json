@@ -1,0 +1,37 @@
+{
+  "name": "heusc-bot",
+  "version": "0.0.1",
+  "description": "Bot for the Sea of Decay Discord server.",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-json-modules --experimental-specifier-resolution=node bot.js",
+    "lint": "eslint .",
+    "prettier": "prettier --check ."
+  },
+  "main": "bot.js",
+  "keywords": [
+    "discord.js",
+    "discord-bot"
+  ],
+  "author": "Dé-Jà-Vu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamdeja/heusc.git"
+  },
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.11.16"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.14",
+    "@babel/eslint-parser": "^7.13.14",
+    "@babel/preset-env": "^7.13.12",
+    "eslint": "^7.23.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-import": "^2.22.1",
+    "prettier": "^2.2.1"
+  }
+}
