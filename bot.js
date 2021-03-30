@@ -78,6 +78,10 @@ bot.once("ready", () => {
 
 // This command fetching implementation is subject to change.
 // I am not happy with it, however, I don't yet have a better idea.
+
+// Two main issues I have: classes aren't needed, because no command
+// has to manage its state, and I'm against arbitrary imports at runtime.
+// They would make sense to me only if they could be "hot-swapped".
 (async () => {
   const commandFiles = readdirSync("./commands/").filter((file) =>
     file.endsWith(".js")
