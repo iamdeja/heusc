@@ -1,21 +1,35 @@
 import { MessageEmbed } from "discord.js";
 import Command from "./base/Command";
-import Pc from "../models/dndPc";
+import PC from "../models/dndPc";
 import { getUserFromLink } from "./helpers/guildFunctions";
 
 // Suffix to handle multiple PCs for future campaigns.
 const suffix = "_1";
 
+const help =
+  "```\n" +
+  "Dungeons and Dragons.\n" +
+  "\n" +
+  "Usage:\n" +
+  "  dnd pc <player_name> [set] [pc_options]\n" +
+  "  dnd loc <location_name> [set] <description>\n" +
+  "\n" +
+  "Options:\n" +
+  "  pc: --name, --race, --class, --bio, [--image | --pic]\n" +
+  "\n" +
+  "All options must be followed by a value, else the respective fields are cleared.\n" +
+  "```";
+
 const fixedResponses = {
-  pcCallError: "???",
+  pcCallError: `Wrong command usage.\n${help}`,
   pcArgumentParseError: "Could not parse arguments. Please check your syntax.",
-  pcUpdateSuccess: "PC successfully updated. View using `dnd player-nick`.",
+  pcUpdateSuccess: "PC successfully updated. View using `dnd pc <nickname>`.",
   pcUpdateFailure: "Something went wrong. The PC could not be updated.",
 };
 
-const updatePc = async (id, options) => {
+const updatePC = async (id, options) => {
   try {
-    await Pc.findByIdAndUpdate(id, { $set: options }, { upsert: true }).exec();
+    await PC.findByIdAndUpdate(id, { $set: options }, { upsert: true }).exec();
     return true;
   } catch (e) {
     console.error(e);
@@ -26,15 +40,12 @@ const updatePc = async (id, options) => {
 const formatForMongoQuery = (rawObject) => {
   const options = {};
 
-  for (const [key, value] of Object.entries(rawObject)) {
-    // if (key !== "bio") {
-    //   value = value.toLowerCase();
-    //   value = value.charAt(0).toUpperCase() + value.slice(1);
-    // }
+  for (const [option, argument] of Object.entries(rawObject)) {
+    const value = argument.charAt(0).toUpperCase() + argument.slice(1);
 
     // Invalid options are simply dropped.
     // eslint-disable-next-line default-case
-    switch (key) {
+    switch (option) {
       case "name":
         options.name = value;
         break;
@@ -43,9 +54,6 @@ const formatForMongoQuery = (rawObject) => {
         break;
       case "class":
         options.class = value;
-        break;
-      case "pictureURL":
-        options.pictureURL = value;
         break;
       case "bio":
         options.bio = value;
@@ -93,7 +101,7 @@ const handlePCUpdate = async (message, args) => {
   if (error) return message.channel.send(fixedResponses.pcArgumentParseError);
 
   const mongoOptions = formatForMongoQuery(inputOptions);
-  const updateResult = await updatePc(userId, mongoOptions);
+  const updateResult = await updatePC(userId, mongoOptions);
   return message.channel.send(
     updateResult
       ? fixedResponses.pcUpdateSuccess
@@ -105,9 +113,9 @@ const createPCEmbed = (user, pc) =>
   new MessageEmbed()
     .setAuthor(user.user.tag, user.user.displayAvatarURL())
     .setColor(user.displayColor)
+    .setThumbnail(pc.pictureURL)
     .setTitle(pc.name ?? "-")
     .setDescription(pc.bio ?? "-")
-    .setThumbnail(pc.pictureURL)
     .addField("Race", pc.race ?? "-")
     .addField("Class", pc.class ?? "-");
 
@@ -124,7 +132,7 @@ const handlePCFetch = async (message, args) => {
     );
   }
 
-  const pc = await Pc.findById(userId + suffix);
+  const pc = await PC.findById(userId + suffix);
   if (!pc) return message.channel.send("No player character for this user.");
 
   return message.channel.send(createPCEmbed(user, pc));
@@ -139,14 +147,20 @@ export default class Dnd extends Command {
   }
 
   async execute(message, args) {
-    switch (args[0]) {
+    const subcommand = args[0] ? args[0].toLowerCase() : args[0];
+    switch (subcommand) {
       case "pc":
-      case "PC":
         if (args[2]) return handlePCUpdate(message, args);
         if (args[1]) return handlePCFetch(message, args);
         return message.channel.send(fixedResponses.pcCallError);
+      case "loc":
+        return message.channel.send("Location command not available yet.");
+      case "help":
+        return message.channel.send(help);
       default:
-        return null;
+        return message.channel.send(
+          "Ambiguous usage. Use `dnd help` to get help."
+        );
     }
   }
 }
