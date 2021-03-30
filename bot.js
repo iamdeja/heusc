@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { Client, Collection } from "discord.js";
 import mongoose from "mongoose";
-import { readdirSync } from "fs";
+import commands from "./commands/commands";
 
 // XP MODULES ARE ON AN IMPLEMENTATION BREAK.
 // import User from "./models/user";
@@ -76,50 +76,17 @@ bot.once("ready", () => {
 
 // Commands
 
-// This command fetching implementation is subject to change.
-// I am not happy with it, however, I don't yet have a better idea.
-
-// Two main issues I have: classes aren't needed, because no command
-// has to manage its state, and I'm against arbitrary imports at runtime.
-// They would make sense to me only if they could be "hot-swapped".
-(async () => {
-  const commandFiles = readdirSync("./commands/").filter((file) =>
-    file.endsWith(".js")
-  );
-
-  for (const file of commandFiles) {
-    const { default: CommandConstructor } = await import(`./commands/${file}`);
-    const command = new CommandConstructor();
-    bot.commands.set(command.name, command);
-  }
-})();
-
 const prefix = "!";
 bot.commands = new Collection();
-
-// const guilds = new Map();
-// const xpCooldowns = new Collection();
+commands.forEach((command) => {
+  bot.commands.set(command.name, command);
+});
 
 // Command Handler
 
 bot.on("message", async (message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
-
-  // if (!guilds.has(message.guild.id)) {
-  //   guilds.set(message.guild.id, new Collection());
-  // }
-
-  // const now = Date.now();
-  // if (!xpCooldowns.has(message.author.id)) {
-  //   xpCooldowns.set(message.author.id, now);
-  //   setTimeout(() => xpCooldowns.delete(message.author.id), 1000 * 60);
-  //
-  //   let user = await User.findById(message.author.id);
-  //   if (!user) user = await createUser(message.author, message.guild);
-  //   console.log("Adding xp");
-  //   addGuildXp(user, message.guild).catch(console.error);
-  // }
 
   // This approach of slicing arguments has downsides.
   // For example, one cannot have spaces in arguments even if they surround
@@ -141,10 +108,5 @@ bot.on("message", async (message) => {
     await message.reply("there was an error trying to execute that command!");
   }
 });
-
-// bot.on("guildCreate", async (guild) => {
-//   console.log("New server");
-//   guild.members.fetch().then(console.log).catch(console.error);
-// });
 
 bot.login(process.env.TOKEN).catch(console.error);

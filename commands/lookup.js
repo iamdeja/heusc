@@ -1,17 +1,10 @@
 import { MessageEmbed } from "discord.js";
-import Command from "./base/Command";
 import { Link } from "../models/models";
 import { getUserFromLink } from "./helpers/guildFunctions";
 
-export default class Lookup extends Command {
-  constructor() {
-    super({
-      name: "lookup",
-      description: "Lookup discord user based on common name.",
-    });
-  }
-
-  async execute(message, args) {
+const lookup = {
+  name: "lookup",
+  execute: async (message, args) => {
     switch (args[0]) {
       case "set":
         if (!args[1] || !args[2]) {
@@ -69,5 +62,7 @@ export default class Lookup extends Command {
           "Wrong usage. Available arguments: " + "`get, set`."
         );
     }
-  }
-}
+  },
+};
+
+export default lookup;

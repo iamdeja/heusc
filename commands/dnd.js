@@ -1,4 +1,3 @@
-import Command from "./base/Command";
 import { PC, Location } from "../models/models";
 import { getUserFromLink } from "./helpers/guildFunctions";
 import { createLocationEmbed, createPCEmbed } from "./helpers/embeds";
@@ -137,15 +136,9 @@ const handleLocationFetch = async (message, args) => {
   return message.channel.send(createLocationEmbed(location));
 };
 
-export default class Dnd extends Command {
-  constructor() {
-    super({
-      name: "dnd",
-      description: "Dungeons & Dragons related stuff.",
-    });
-  }
-
-  async execute(message, args) {
+const dnd = {
+  name: "dnd",
+  execute: async (message, args) => {
     const subcommand = args[0] ? args[0].toLowerCase() : args[0];
     switch (subcommand) {
       case "pc":
@@ -173,5 +166,7 @@ export default class Dnd extends Command {
           "Ambiguous usage. See `dnd help` for proper syntax."
         );
     }
-  }
-}
+  },
+};
+
+export default dnd;

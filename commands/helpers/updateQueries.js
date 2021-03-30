@@ -1,5 +1,4 @@
-import PC from "../../models/dndPc";
-import Location from "../../models/dndLocation";
+import { PC, Location } from "../../models/models";
 
 export const updatePC = async (id, options) => {
   try {
