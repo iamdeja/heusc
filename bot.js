@@ -3,10 +3,6 @@ import { Client, Collection } from "discord.js";
 import mongoose from "mongoose";
 import commands from "./commands/commands";
 
-// XP MODULES ARE ON AN IMPLEMENTATION BREAK.
-// import User from "./models/user";
-// import { addGuildXp, createUser } from "./commands/helpers/guildFunctions";
-
 dotenv.config();
 
 // Fancy art.
