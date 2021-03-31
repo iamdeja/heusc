@@ -1,12 +1,16 @@
-import { PC, Location } from "../models/models";
+import { PC, Location, NPC } from "../models/models";
+import { parseArguments } from "./helpers/io";
 import { getUserFromLink } from "./helpers/guildFunctions";
-import { createLocationEmbed, createPCEmbed } from "./helpers/embeds";
 import { updateLocation, updatePC } from "./helpers/updateQueries";
+import {
+  createLocationEmbed,
+  createNpcEmbed,
+  createPCEmbed,
+} from "./helpers/embeds";
 import {
   formatUpdateLocationQuery,
   formatUpdatePCQuery,
 } from "./helpers/formatQueries";
-import { parseArguments } from "./helpers/io";
 
 // Suffix to handle multiple PCs for future campaigns.
 const suffix = "_1";
@@ -105,9 +109,7 @@ const handlePCFetch = async (message, args) => {
   try {
     user = await message.guild.members.fetch(userId);
   } catch (e) {
-    return message.channel.send(
-      "Member not found. The bot is designed only for usage within Sea of Decay."
-    );
+    return message.channel.send("Member not found. Are they in this server?");
   }
 
   const pc = await PC.findById(userId + suffix).exec();
@@ -130,10 +132,27 @@ const handleAllLocationsFetch = async (message) => {
   return message.channel.send(listMessage);
 };
 
-const handleLocationFetch = async (message, args) => {
-  const location = await Location.findById(args[1].toLowerCase()).exec();
-  if (!location) return message.channel.send("Location not found.");
-  return message.channel.send(createLocationEmbed(location));
+const handleFetch = async (subCmd, message, args) => {
+  let model;
+  let embedFunction;
+  let displayTarget;
+  switch (subCmd) {
+    case "npc":
+      model = NPC;
+      displayTarget = "Npc";
+      embedFunction = createNpcEmbed;
+      break;
+    case "loc":
+      model = Location;
+      displayTarget = "Location";
+      embedFunction = createLocationEmbed;
+      break;
+    default:
+      throw Error("Unknown DnD subcommand type!");
+  }
+  const object = await model.findById(args[1].toLowerCase()).exec();
+  if (!object) return message.channel.send(`${displayTarget} not found.`);
+  return message.channel.send(embedFunction(object));
 };
 
 const dnd = {
@@ -155,8 +174,11 @@ const dnd = {
           if (args[1] === "list") return handleAllLocationsFetch(message);
           if (args[1] === "help")
             return message.channel.send(locResponses.generalHelp);
-          return handleLocationFetch(message, args);
+          return handleFetch("loc", message, args);
         }
+        return message.channel.send(cmdCallError);
+      case "npc":
+        if (args[1]) return handleFetch("npc", message, args);
         return message.channel.send(cmdCallError);
       case "info":
       case "help":

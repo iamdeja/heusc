@@ -95,13 +95,16 @@ bot.on("message", async (message) => {
   if (!command) return;
 
   // This is a last resort try-catch block for Discord errors,
-  // such as message channel send permissions.
+  // such as message channel send permissions or for programmer errors, either
+  // explicitly thrown or overlooked.
   // All implementation errors should be handled within commands.
   try {
     await command.execute(message, args);
   } catch (e) {
     console.error(e);
-    await message.reply("there was an error trying to execute that command!");
+    await message.reply(
+      "there was an unknown error trying to execute that command!"
+    );
   }
 });
 

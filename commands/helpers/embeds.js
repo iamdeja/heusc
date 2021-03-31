@@ -15,3 +15,9 @@ export const createLocationEmbed = (location) =>
     .setTitle(location.name)
     .setDescription(location.description ?? "-")
     .setImage(location.pictureURL);
+
+export const createNpcEmbed = (npc) =>
+  new MessageEmbed()
+    .setTitle(npc.name ?? "-")
+    .setDescription(npc.description ?? "-")
+    .setThumbnail(npc.pictureURL);
