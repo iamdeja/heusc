@@ -30,6 +30,7 @@ const pcResponses = {
     "```\n" +
     "Usage: dnd pc <player_id>                fetch PC information\n" +
     "   or: dnd pc <player_id> set [options]  update PC information\n" +
+    "   or: dnd pc list                       fetch a list of player characters\n" +
     "\n" +
     `Options: ${pcOptions}\n\n` +
     "Options not followed by values are reset.\n" +
@@ -102,7 +103,7 @@ const handleLocationUpdate = async (message, args) => {
 };
 
 const handlePCFetch = async (message, args) => {
-  const userId = await getUserFromLink(args[1]);
+  const userId = await getUserFromLink(args[1].toLowerCase());
   if (!userId) return message.channel.send("No user with this id found.");
 
   let user;
@@ -124,9 +125,20 @@ const handlePCFetch = async (message, args) => {
 const handleAllLocationsFetch = async (message) => {
   const rawLocationsList = await Location.find({}).exec();
   let listMessage = "List of all locations with their IDs:\n";
-  listMessage += "```";
+  listMessage += "```\n";
   rawLocationsList.forEach((location) => {
     listMessage += `${location.name}: ${location.id}\n`;
+  });
+  listMessage += "```";
+  return message.channel.send(listMessage);
+};
+
+const handleAllPcsFetch = async (message) => {
+  const rawPcList = await PC.find({}).exec();
+  let listMessage = "List of all player characters:\n";
+  listMessage += "```md\n";
+  rawPcList.forEach((pc) => {
+    listMessage += `# ${pc.name}\n${pc.race} - ${pc.class}\n`;
   });
   listMessage += "```";
   return message.channel.send(listMessage);
@@ -163,6 +175,7 @@ const dnd = {
       case "pc":
         if (args[2]) return handlePCUpdate(message, args);
         if (args[1]) {
+          if (args[1] === "list") return handleAllPcsFetch(message);
           if (args[1] === "help")
             return message.channel.send(pcResponses.generalHelp);
           return handlePCFetch(message, args);
